@@ -5,8 +5,8 @@ from time import time
 import pygame
 from settings import *
 
-from light import Light, Shooter
-from enemy import Enemy
+from light import *
+from enemy import EnemySpawner
 
 import numpy as np
 
@@ -39,15 +39,10 @@ def main():
 
     world = World(screen)
 
-    core_g = pygame.sprite.Group()
-    towers_g = pygame.sprite.Group()
-    bullets_g = pygame.sprite.Group()
-
-    core = Light(light_surface, 100, CENTER, WHITE, 500, world, world.core_g)
+    core = Core(light_surface, world, world.core_g)
     light = Shooter(light_surface, CENTER, world, world.towers_g)
 
-    enemies_g = pygame.sprite.Group()
-    enemy = Enemy((0, 0), core.rect.center, world, world.enemies_g)
+    enemy_spawner = EnemySpawner(world)
 
     while running:
         dt = time() - last_time
@@ -79,6 +74,9 @@ def main():
         light.set_pos(mouse_pos)
 
         world.update(dt)
+
+        enemy_spawner.update(dt)
+
         screen.blit(light_surface, (0, 0), special_flags=pygame.BLEND_RGB_ADD)
 
         world.enemies_g.draw(screen)

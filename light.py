@@ -22,7 +22,7 @@ class Light(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = pos
 
-        self.zone = pygame.Rect(0, 0, self.w / 1.5, self.w / 1.5)
+        self.zone = pygame.Rect(0, 0, self.w, self.w)
         self.zone.center = self.rect.center
 
         self.set = False
@@ -50,6 +50,13 @@ class Light(pygame.sprite.Sprite):
         self.zone.center = pos
 
 
+class Core(Light):
+    def __init__(self, screen, world, *groups):
+        self.energy = 100
+
+        super().__init__(screen, self.energy, CENTER, WHITE, 500, world, *groups)
+
+
 class Shooter(Light):
     def __init__(self, screen, pos, world, *groups):
         super().__init__(screen, 150, pos, YELLOW, 50, world, *groups)
@@ -64,7 +71,7 @@ class Shooter(Light):
             self.tick -= dt
             if self.tick <= 0:
                 self.tick = self.max_tick
-                v = [s for s in self.world.enemies_g.sprites()]
+                v = [s for s in self.world.enemies_g.sprites() if s.rect.colliderect(self.zone)]
                 if v:
                     s = random.choice(v)
                     Bullet(self.screen, self.rect.center, s.rect.center, self.world, self.world.bullets_g)
@@ -91,7 +98,7 @@ class Bullet(Light):
         for enemy in self.world.enemies_g.sprites():
             if self.rect.colliderect(enemy.rect):
                 r, g, b = enemy.color
-                r, g, b = min(r + 10, 255), min(g + 10, 255), min(b + 10, 255)
+                r, g, b = min(r + 20, 255), min(g + 20, 255), min(b + 20, 255)
                 enemy.color = r, g, b
                 enemy.update_image()
                 create_particles(self.screen, YELLOW, enemy.rect.center, 10, 30, self.world.particles_g)
